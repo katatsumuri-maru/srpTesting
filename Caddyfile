@@ -1,3 +1,11 @@
-localhost
+{
+    auto_https disable_redirects
+}
 
-respond "Hello, world!"
+:80 {
+    respond "Caddy HTTP Server"
+}
+
+localhost {
+    respond "Caddy HTTP/TLS Server"
+}

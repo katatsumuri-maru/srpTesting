@@ -2,14 +2,25 @@ use tokio::net::TcpStream;
 use tokio::io::{copy_bidirectional, AsyncReadExt};
 use tokio::net::TcpStream as TokioTcpStream;
 use std::io;
+use std::env;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
-    let relay_addr = "relay:7000";
+    let relay_addr;
+    match env::var("RELAY") {
+        Ok(val) => {relay_addr=val}
+        Err(_e) => panic!("No relay specified"),
+    }
+
+    let endpoint_addr;
+    match env::var("ENDPOINT") {
+        Ok(val) => {endpoint_addr=val}
+        Err(_e) => panic!("No endpoint specified"),
+    }
 
     loop {
         println!("Connecting to relay...");
-        let mut tunnel = TcpStream::connect(relay_addr).await?;
+        let mut tunnel = TcpStream::connect(&relay_addr).await?;
 
         let mut buffer = [0u8; 6];
 
@@ -20,7 +31,7 @@ async fn main() -> io::Result<()> {
             }
 
             if &buffer == b"START\n" {
-                let mut local = TokioTcpStream::connect("web:443").await?;
+                let mut local = TokioTcpStream::connect(&endpoint_addr).await?;
                 let _ = copy_bidirectional(&mut tunnel, &mut local).await;
                 break;
             }
