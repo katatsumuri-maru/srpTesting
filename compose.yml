@@ -1,6 +1,7 @@
 services:
   relay:
     build: ./relay
+    container_name: relay
     ports:
       - "443:443"
     networks:
@@ -8,6 +9,7 @@ services:
 
   agent:
     build: ./agent
+    container_name: agent
     depends_on:
       - relay
       - web
@@ -16,10 +18,12 @@ services:
       - home
 
   web:
-    image: python:3.11-slim
-    command: python -m http.server 8080
+    image: caddy
+    container_name: web
+    volumes:
+    - ./Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
-      - home
+    - home
 
 networks:
   internet:

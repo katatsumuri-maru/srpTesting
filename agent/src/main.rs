@@ -1,9 +1,10 @@
 use tokio::net::TcpStream;
 use tokio::io::{copy_bidirectional, AsyncReadExt};
 use tokio::net::TcpStream as TokioTcpStream;
+use std::io;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> io::Result<()> {
     let relay_addr = "relay:7000";
 
     loop {
@@ -19,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
             }
 
             if &buffer == b"START\n" {
-                let mut local = TokioTcpStream::connect("web:8080").await?;
+                let mut local = TokioTcpStream::connect("web:443").await?;
                 let _ = copy_bidirectional(&mut tunnel, &mut local).await;
                 break;
             }

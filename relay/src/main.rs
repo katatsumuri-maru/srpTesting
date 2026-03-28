@@ -1,9 +1,10 @@
 use tokio::net::TcpListener;
 use tokio::io::{copy_bidirectional, AsyncWriteExt};
 use tokio::sync::mpsc;
+use std::io;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> io::Result<()> {
     let tunnel_listener = TcpListener::bind("0.0.0.0:7000").await?;
     let public_listener = TcpListener::bind("0.0.0.0:443").await?;
 
@@ -14,8 +15,8 @@ async fn main() -> anyhow::Result<()> {
     // Accept agent connection
     tokio::spawn(async move {
         loop {
-            let (stream, _) = tunnel_listener.accept().await.unwrap();
-            println!("Agent connected");
+            let (stream, addr) = tunnel_listener.accept().await.unwrap();
+            println!("Agent connected: {}", addr);
             tx.send(stream).await.unwrap();
         }
     });
@@ -24,7 +25,6 @@ async fn main() -> anyhow::Result<()> {
         let (mut inbound, addr) = public_listener.accept().await?;
         println!("Incoming client: {}", addr);
 
-        // 👇 receive agent HERE (not inside spawn)
         let mut agent = match rx.recv().await {
             Some(s) => s,
             None => {
