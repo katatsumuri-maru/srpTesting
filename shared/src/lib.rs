@@ -28,10 +28,12 @@ pub struct Client {
 
 #[derive(Parser, Debug)]
 #[command(name = "src")]
-#[command(about = "Secure reverse proxy for exposing services in private networks")]
+#[command(about = "Secure reverse proxy for exposing services in private networks.")]
 pub struct Args {
     #[arg(short = 'c')]
     #[arg(long = "config")]
+    #[arg(value_name = "CONFIG_FILE")]
+    #[arg(help = "Config file in toml format")]
     pub config: String,
 }
 
