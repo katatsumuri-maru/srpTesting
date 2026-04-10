@@ -2,20 +2,18 @@ use tokio::net::TcpListener;
 use tokio::io::{copy_bidirectional, AsyncWriteExt};
 use tokio::sync::mpsc;
 use std::io;
-use std::env;
+use shared;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
-    let agent_tunnel;
-    match env::var("RELAY_PORT") {
-        Ok(val) => {agent_tunnel=format!("0.0.0.0:{val}");}
-        Err(_e) => panic!("No relay port specified"),
-    }
+    let args = shared::Args::parse_args();
 
-    let tunnel_listener = TcpListener::bind(&agent_tunnel).await?;
+    let config: shared::ServerConfig = shared::parsing::parse_server_config(&args.config);
+
+    let tunnel_listener = TcpListener::bind(&config.server.bind_addr).await?;
     let public_listener = TcpListener::bind("0.0.0.0:443").await?;
 
-    println!("Relay listening on {} (agent) and 443 (public)", agent_tunnel);
+    println!("Relay listening on {} (agent) and 443 (public)", &config.server.bind_addr);
 
     let (tx, mut rx) = mpsc::channel::<tokio::net::TcpStream>(1);
 

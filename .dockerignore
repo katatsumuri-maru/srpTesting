@@ -1,0 +1,4 @@
+docs/**
+Cargo.lock
+target/**
+.vscode/**

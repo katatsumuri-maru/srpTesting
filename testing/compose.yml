@@ -1,0 +1,39 @@
+services:
+  srp:
+    build:
+      context: ..
+      dockerfile: srp/Dockerfile
+    container_name: srp
+    volumes:
+      - ./client.toml:/app/client.toml:ro
+    depends_on:
+      - srps
+    ports:
+      - "443:443"
+    networks:
+      - internet
+
+  srps:
+    build:
+      context: ..
+      dockerfile: srps/Dockerfile
+    container_name: srps
+    volumes:
+      - ./server.toml:/app/server.toml:ro
+    depends_on:
+      - web
+    networks:
+      - internet
+      - home
+
+  web:
+    image: caddy
+    container_name: web
+    volumes:
+    - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+    - home
+
+networks:
+  internet:
+  home:

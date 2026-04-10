@@ -1,0 +1,3 @@
+[client]
+remote_addr="srps:7000"
+endpoint_addr="web:443"

@@ -1,0 +1,3 @@
+[workspace]
+members = ["srp", "srps", "shared"]
+resolver = "1"
